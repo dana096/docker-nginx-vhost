@@ -8,52 +8,91 @@ https://www.nginx.com/resources/glossary/load-balancing/
 
 <br>
 
-# step 1
-- docker rm * rmi
+# Dockerfile
+- Dockerfile 생성
 ```
-$ sudo docker images
-REPOSITORY   TAG       IMAGE ID   CREATED   SIZE
-$ sudo docker ps -a
-CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
-```
+$ cat Dockerfile
 
-<br>
+# lb
+FROM nginx
+COPY config/default.conf /etc/nginx/conf.d/
 
-# step 2
-```
-$ docker run -itd -p 8002:80 --name serv-a nginx
-$ docker run -itd -p 8003:80 --name serv-b nginx
-$ docker run -itd -p 8001:80 --name lb nginx:latest
-
-sudo docker ps -a
-CONTAINER ID   IMAGE          COMMAND                  CREATED              STATUS              PORTS                                   NAMES
-bc8d24d12c4f   nginx          "/docker-entrypoint.…"   2 seconds ago        Up 1 second         0.0.0.0:8003->80/tcp, :::8003->80/tcp   serv-b
-ea1b184ec4d7   nginx:latest   "/docker-entrypoint.…"   About a minute ago   Up About a minute   0.0.0.0:8001->80/tcp, :::8001->80/tcp   lb
-3ac517b5245e   nginx          "/docker-entrypoint.…"   About a minute ago   Up About a minute   0.0.0.0:8002->80/tcp, :::8002->80/tcp   serv-a
+# serv-a / serv-b
+FROM nginx
+COPY index.html /usr/share/nginx/html
 ```
 
-<br>
-
-# step 3
-- config 디렉토리에 default.conf 생성
+- lb/config/default.conf 코드 수정
 ```
-$ vi default.conf
-$ cat default.conf
 upstream serv {
-  server serv-a:80;
-  server serv-b:80;
+        server n1-1:80;
+        server n1-2:80;
 }
 server {
-  listen 80;
+        listen 80;
 
-  location /
-  {
-    proxy_pass http://serv;
-  }
+        location /
+        {
+                proxy_pass http://serv;
+        }
 }
+```
+- build & run
+```
+# n1-1 (serv-a)
+$ sudo docker build -t ng-n-1:0.1.0 .
+$ sudo docker run -d -p 9011:80 ng-n-1:0.1.0
+
+# n1-2 (serv-b)
+$ sudo docker build -t ng-n-2:0.1.0 .
+$ sudo docker run -d -p 9012:80 ng-n-2:0.1.0
+
+# n1-3 (lb)
+$ sudo docker build -t ng-n-3:0.1.0 .
+$ sudo docker run -d -p 9013:80 ng-n-3:0.1.0
+```
+- check
+```
+$ sudo docker ps -a
+CONTAINER ID   IMAGE                 COMMAND                  CREATED          STATUS                   PORTS                                   NAMES
+bc0c07bdc3a0   ng-n-3:0.1.0          "/docker-entrypoint.…"   3 minutes ago    Up 2 seconds             0.0.0.0:9013->80/tcp, :::9013->80/tcp   n1-3
+63b9b4956ac8   ng-n-2:0.1.0          "/docker-entrypoint.…"   8 minutes ago    Up 8 minutes             0.0.0.0:9012->80/tcp, :::9012->80/tcp   n1-2
+a7a1e2ad223d   ng-n-1:0.1.0          "/docker-entrypoint.…"   9 minutes ago    Up 9 minutes             0.0.0.0:9011->80/tcp, :::9011->80/tcp   n1-1
 ```
 
 <br>
 
-# ref
-- https://hub.docker.com/
+# network
+- 네트워크 조회
+```
+$ docker network ls
+```
+- 네트워크 생성
+```
+$ sudo docker network create doc
+```
+- 네트워크에 컨테이너 연결 (connect)
+```
+$ sudo docker network connect doc n1-1
+$ sudo docker network connect doc n1-2
+$ sudo docker network connect doc n1-3
+```
+- 네트워크 상세 정보 (inspect)
+```
+$ sudo docker network inspect doc
+```
+- _**n1-3(lb) 가 연결되지 않는다면?**_
+```
+$ sudo docker start n1-3
+```
+- 컨테이너 n1-3(lb) 실행 <br>
+[localhost:9013](http://localhost:9013/)http://localhost:9013/
+
+<br>
+
+# [ TEST ]
+- 새로고침을 하면 아래 2개의 이미지(n1-1, n1-2)가 번갈아 노출된다
+![image](https://github.com/dana096/docker-nginx-vhost/assets/145534055/56af85a6-5a97-4fdc-a1ab-6beca2e3528f)
+![image](https://github.com/dana096/docker-nginx-vhost/assets/145534055/23bc9790-b2dd-4b48-b6e3-c2d90a6dd2a5)
+
+
