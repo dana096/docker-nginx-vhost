@@ -34,5 +34,26 @@ ea1b184ec4d7   nginx:latest   "/docker-entrypoint.…"   About a minute ago   Up
 
 <br>
 
+# step 3
+- config 디렉토리에 default.conf 생성
+```
+$ vi default.conf
+$ cat default.conf
+upstream serv {
+  server serv-a:80;
+  server serv-b:80;
+}
+server {
+  listen 80;
+
+  location /
+  {
+    proxy_pass http://serv;
+  }
+}
+```
+
+<br>
+
 # ref
 - https://hub.docker.com/
