@@ -70,6 +70,10 @@ $ docker network ls
 ### 2. 네트워크 생성
 ```
 $ sudo docker network create doc
+
+$ docker network ls
+NETWORK ID     NAME      DRIVER    SCOPE
+53926575b0cd   doc       bridge    local
 ```
 ### 3. 네트워크에 컨테이너 연결 (connect)
 ```
