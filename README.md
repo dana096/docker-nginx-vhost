@@ -9,7 +9,7 @@ https://www.nginx.com/resources/glossary/load-balancing/
 <br>
 
 # Dockerfile
-- Dockerfile 생성
+### 1. Dockerfile 생성
 ```
 $ cat Dockerfile
 
@@ -22,7 +22,7 @@ FROM nginx
 COPY index.html /usr/share/nginx/html
 ```
 
-- lb/config/default.conf 코드 수정
+### 2. lb/config/default.conf 코드 수정
 ```
 upstream serv {
         server n1-1:80;
@@ -37,7 +37,7 @@ server {
         }
 }
 ```
-- build & run
+### 3. build & run
 ```
 # n1-1 (serv-a)
 $ sudo docker build -t ng-n-1:0.1.0 .
@@ -51,7 +51,7 @@ $ sudo docker run -d -p 9012:80 ng-n-2:0.1.0
 $ sudo docker build -t ng-n-3:0.1.0 .
 $ sudo docker run -d -p 9013:80 ng-n-3:0.1.0
 ```
-- check
+### 4. check
 ```
 $ sudo docker ps -a
 CONTAINER ID   IMAGE                 COMMAND                  CREATED          STATUS                   PORTS                                   NAMES
@@ -63,34 +63,36 @@ a7a1e2ad223d   ng-n-1:0.1.0          "/docker-entrypoint.…"   9 minutes ago   
 <br>
 
 # network
-- 네트워크 조회
+### 1. 네트워크 조회
 ```
 $ docker network ls
 ```
-- 네트워크 생성
+### 2. 네트워크 생성
 ```
 $ sudo docker network create doc
 ```
-- 네트워크에 컨테이너 연결 (connect)
+### 3. 네트워크에 컨테이너 연결 (connect)
 ```
 $ sudo docker network connect doc n1-1
 $ sudo docker network connect doc n1-2
 $ sudo docker network connect doc n1-3
 ```
-- 네트워크 상세 정보 (inspect)
+### 4. 네트워크 상세 정보 (inspect)
 ```
 $ sudo docker network inspect doc
 ```
-- _**n1-3(lb) 가 연결되지 않는다면?**_
+![image](https://github.com/dana096/docker-nginx-vhost/assets/145534055/903b9342-38c5-4ba2-ac62-fb64581c8476)
+
+❓ _**n1-3(lb) 가 연결되지 않는다면?**_
 ```
 $ sudo docker start n1-3
 ```
-- 컨테이너 n1-3(lb) 실행 <br>
+### 5. 컨테이너 n1-3(lb) 실행 <br>
 [localhost:9013](http://localhost:9013/)http://localhost:9013/
 
 <br>
 
-# [ TEST ]
+### [ TEST ]
 - 새로고침을 하면 아래 2개의 이미지(n1-1, n1-2)가 번갈아 노출된다
 ![image](https://github.com/dana096/docker-nginx-vhost/assets/145534055/56af85a6-5a97-4fdc-a1ab-6beca2e3528f)
 ![image](https://github.com/dana096/docker-nginx-vhost/assets/145534055/23bc9790-b2dd-4b48-b6e3-c2d90a6dd2a5)
