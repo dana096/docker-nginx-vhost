@@ -8,52 +8,38 @@ https://www.nginx.com/resources/glossary/load-balancing/
 
 <br>
 
-# step 1
-- docker rm * rmi
+# Dockerfile
+- Dockerfile 생성
 ```
-$ sudo docker images
-REPOSITORY   TAG       IMAGE ID   CREATED   SIZE
-$ sudo docker ps -a
-CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+$ cat Dockerfile
+FROM nginx
+COPY index.html /usr/share/nginx/html
 ```
-
+- build & run
+```
+$ sudo docker build -t ng-n-1:0.1.0 .
+$ sudo docker run -d -p 9011:80 ng-n-1:0.1.0
+```
 <br>
 
-# step 2
+# network
+- 네트워크 조회
 ```
-$ docker run -itd -p 8002:80 --name serv-a nginx
-$ docker run -itd -p 8003:80 --name serv-b nginx
-$ docker run -itd -p 8001:80 --name lb nginx:latest
-
-sudo docker ps -a
-CONTAINER ID   IMAGE          COMMAND                  CREATED              STATUS              PORTS                                   NAMES
-bc8d24d12c4f   nginx          "/docker-entrypoint.…"   2 seconds ago        Up 1 second         0.0.0.0:8003->80/tcp, :::8003->80/tcp   serv-b
-ea1b184ec4d7   nginx:latest   "/docker-entrypoint.…"   About a minute ago   Up About a minute   0.0.0.0:8001->80/tcp, :::8001->80/tcp   lb
-3ac517b5245e   nginx          "/docker-entrypoint.…"   About a minute ago   Up About a minute   0.0.0.0:8002->80/tcp, :::8002->80/tcp   serv-a
+$ docker network ls
 ```
-
-<br>
-
-# step 3
-- config 디렉토리에 default.conf 생성
+- 네트워크 생성
 ```
-$ vi default.conf
-$ cat default.conf
-upstream serv {
-  server serv-a:80;
-  server serv-b:80;
-}
-server {
-  listen 80;
-
-  location /
-  {
-    proxy_pass http://serv;
-  }
-}
+$ sudo docker network create abc
 ```
-
-<br>
-
-# ref
-- https://hub.docker.com/
+- 네트워크에 컨테이너 연결 (connect)
+```
+$ sudo docker network connect abc serv-a
+$ sudo docker network connect abc serv-b
+$ sudo docker network connect abc lb
+```
+- 네트워크 상세 정보 (inspect)
+```
+$ sudo docker network inspect abc
+```
+- 컨테이너 lb 실행 (localhost:8001)
+localhost:8081
