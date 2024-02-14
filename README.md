@@ -91,7 +91,7 @@ $ sudo docker start n1-3
 <br>
 
 # [ TEST ]
-
+- 새로고침을 하면 아래 2개의 이미지(n1-1, n1-2)가 번갈아 노출된다
 ![image](https://github.com/dana096/docker-nginx-vhost/assets/145534055/56af85a6-5a97-4fdc-a1ab-6beca2e3528f)
 ![image](https://github.com/dana096/docker-nginx-vhost/assets/145534055/23bc9790-b2dd-4b48-b6e3-c2d90a6dd2a5)
 
