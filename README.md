@@ -95,4 +95,6 @@ $ sudo docker start n1-3
 ![image](https://github.com/dana096/docker-nginx-vhost/assets/145534055/56af85a6-5a97-4fdc-a1ab-6beca2e3528f)
 ![image](https://github.com/dana096/docker-nginx-vhost/assets/145534055/23bc9790-b2dd-4b48-b6e3-c2d90a6dd2a5)
 
-# routing the docker.
+# routing the docker
+
+# docker build & deploy with jenkins
